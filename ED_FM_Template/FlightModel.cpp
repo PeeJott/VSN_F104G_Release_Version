@@ -157,7 +157,7 @@ void FlightModel::airborneInit()
 	zeroInit();
 }
 
-void FlightModel::L_stab()
+void FlightModel::calculateAero()
 {
 	//set roll moment -- 
 	//Neu eingefügt am 14.02.2021 PJ-- "-" vor Clr eingefügt, da Clr Daten positiv waren und negativ sein müssten da Dämpfung
@@ -172,10 +172,7 @@ void FlightModel::L_stab()
 	//-------------------------NEUE Versíon MIT Beschränkung des Max-Ausschalgs--------------------------------------------------------
 	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * (((m_input.getRoll() * CON_aitgu) + m_input.getTrimmAilR() - m_input.getTrimmAilL()) * m_ailDamage) + (m_lWingDamageCD + m_rWingDamageCD) + (0.55 * Cldr(m_state.m_mach)) * (m_input.getYaw() * CON_RdDefGDR))
 		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2.0 * Clp(m_state.m_mach) * m_state.m_omega.x + (1.5 * -Clr(m_state.m_mach)) * m_state.m_omega.y);
-}
 
-void FlightModel::M_stab()
-{
 	//set pitch moment-- 
 	//"-" vor Cmde eingefügt, da positiver Wert erwartet--//---Cmde von 0.9 auf 0.8 und Cmalpha von 1.15 auf 1.25 auf 1.35 
 	//m_pitchup ist Pitch-Up-Moment durch AoA > 15°; m_airframe.autoPilotAltH() ist Pitch due to auto-Pilot Altitude-hold; m_hStabDamage ist horizontal stabilizer integrity in %  
@@ -189,10 +186,7 @@ void FlightModel::M_stab()
 	m_moment.z += m_k * CON_mac * (1.35 * (CmalphaNEW(m_state.m_mach) * m_state.m_aoa) + (-CmdeNEW(m_state.m_mach)) * ((((m_input.getPitch() * CON_hstdUP) + m_pitchup) + m_input.getTrimmUp() - m_input.getTrimmDown() + m_airframe.getAutoPilotAltH()) * m_hStabDamage))
 		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_mac * CON_mac * ((1.75 * Cmq(m_state.m_mach)) * m_state.m_omega.z + (1.45 * Cmadot(m_state.m_mach)) * m_aoaDot);
 
-}
 
-void FlightModel::N_stab()
-{
 	//set yaw moment-- 
 	//"Cnda * da" ausgelassen, da wegen gegenläufiger ailerons geringfügig (Buch Seite 114) "Cnp * Pstab" ausgelassen, da ggf. unnötig 
 	// "-" vor Cndr eingefügt, da "Rudereffektivität" positiv sein müsste-- "-" vor Cnb eingefügt, da Dämpfung-- "2.5 *" vor Cnr eingefügt für mehr Dämpfung
@@ -207,21 +201,15 @@ void FlightModel::N_stab()
 	//----------------------------NEUE Version mit Beschränkung des max-Ruderausschlags-----------------------------------------------------
 	m_moment.y += m_q * ((1.5 - (0.95 * m_stallMult)) * -Cnb(m_state.m_mach) * m_state.m_beta + -Cndr(m_state.m_mach) * (-m_input.getYaw() * CON_RdDefGDR))
 		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * ((2.5 - m_stallMult) * Cnr(m_state.m_mach) * m_state.m_omega.y);
-}
 
 
-void FlightModel::lift()
-{
 	//set lift 
 	//-- eingefügt am 16.02. als "Lift = 0.5 * p * V² * s * CL
 	//approx m_force.y
 	// erster Versuch : m_force.y = m_k * (CLmach(m_state.m_mach) + CLa(m_state.m_aoa)); //Lift ist so schon gut ;-)
 	
 	m_force.y += m_k * (((CLa(m_state.m_mach) * m_state.m_aoa) + ((CLFlaps + CLblc) * m_flapDamage)) * ((m_lWingDamageCL + m_rWingDamageCL) / 2.0 ) ); //+ CLds(m_state.m_mach)); //aktuell nur Lift due to AoA ohne Stab-Lift 
-}
 
-void FlightModel::drag()
-{
 	//set drag
 	//--eingefügt 16.02. es fehlt noch supersonic drag, gear-drag, flap-drag, brake-drag
 	//approx m_force.x negative
@@ -229,10 +217,7 @@ void FlightModel::drag()
 		//+ ((CLmach(m_state.m_mach) + CLa(m_state.m_mach)) * (CLmach(m_state.m_mach) + CLa(m_state.m_mach))) / CON_pi * CON_AR * CON_e));
 	// statt 0.85 jetzt 0.80 * CDa(etc) um Alpha-Drag anzupassen.
 	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (0.80 * (CDa(m_state.m_mach) * m_state.m_aoa)) + (CDeng(m_state.m_mach)) + CDGear + CDFlaps + CDBrk + CDBrkCht); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
-}
 
-void FlightModel::sideForce()
-{
 	//set side force
 	//m_force.z
 	m_force.z += m_k * ((Cydr(m_state.m_mach) * m_input.getYaw()) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
@@ -280,12 +265,7 @@ void FlightModel::update(double dt)
 	CDBrkCht = CON_ChtD * m_airframe.brkChutePosition();
 	CLblc = m_airframe.BLCsystem();
 	
-	L_stab();
-	M_stab();
-	N_stab();
-	lift();
-	drag();
-	sideForce();
+	calculateAero();
 	thrustForce();
 	calculateShake(dt);
 	//printf("vector %f \n", m_force.x); //--Der Test für die gesamte (Thrust abzgl. Drag) resultierende m_force.x

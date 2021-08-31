@@ -37,13 +37,7 @@ public:
 	void update(double dt);
 
 
-	void L_stab();
-	void M_stab();
-	void N_stab();
-
-	void lift();
-	void drag();
-	void sideForce();
+	void calculateAero();
 	void thrustForce();
 
 	//----------Cockpit-Shaker--------------------------
