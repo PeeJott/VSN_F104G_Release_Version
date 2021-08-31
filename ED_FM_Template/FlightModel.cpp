@@ -159,6 +159,9 @@ void FlightModel::airborneInit()
 
 void FlightModel::calculateAero()
 {
+	double da = m_input.getRoll() * CON_aitgu;		// Aileron control surface deflection (sum of both right and left aileron deflections) (positive for positive rolling moment) - [rad]
+	double ds = -m_input.getPitch() * CON_hstdUP;	// Stabilizer surface deflection from trim (positive for TED, trailing edge down) - [rad]
+	double dr = -m_input.getYaw() * CON_RdDefGDR;	// Rudder deflection [positive for nose-left yawing moment (negative N)] - [rad]
 	double caoa = cos(m_state.m_aoa);
 	double saoa = sin(m_state.m_aoa);
 	double caoa2 = caoa * caoa;
