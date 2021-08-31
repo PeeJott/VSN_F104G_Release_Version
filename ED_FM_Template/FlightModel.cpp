@@ -164,6 +164,29 @@ void FlightModel::calculateAero()
 	double caoa2 = caoa * caoa;
 	double saoa2 = saoa * saoa;
 
+	double Cnb_stab = Cnb(m_state.m_mach);
+	double Cnp_stab = 0;	// TODO: add data from NASA CR-2144
+	double Cnr_stab = Cnr(m_state.m_mach);
+	double Cnda_stab = 0; 	// TODO: add data from NASA CR-2144
+	double Cndr_stab = Cndr(m_state.m_mach);
+	double Clb_stab = Clb(m_state.m_mach);
+	double Clp_stab = Clp(m_state.m_mach);
+	double Clr_stab = Clr(m_state.m_mach);
+	double Clda_stab = Clda(m_state.m_mach);
+	double Cldr_stab = Cldr(m_state.m_mach);
+
+	// Convert moments from stability to body frame (Ref. NASA CR-2144 Appendix B)
+	double Cnb_body = Cnb_stab * caoa + Clb_stab * saoa;
+	double Cnp_body = Cnp_stab * caoa2 - (Cnr_stab - Clp_stab) * saoa * caoa - Clr_stab * saoa2;
+	double Cnr_body = Cnr_stab * caoa2 + (Clr_stab + Cnp_stab) * saoa * caoa + Clp_stab * saoa2;
+	double Cnda_body = Cnda_stab * caoa + Clda_stab * saoa;
+	double Cndr_body = Cndr_stab * caoa + Cldr_stab * saoa;
+	double Clb_body = Clb_stab * caoa - Cnb_stab * saoa;
+	double Clp_body = Clp_stab * caoa2 - (Clr_stab + Cnp_stab) * saoa * caoa + Cnr_stab * saoa2;
+	double Clr_body = Clr_stab * caoa2 - (Cnr_stab - Clp_stab) * saoa * caoa - Cnp_stab * saoa2;
+	double Clda_body = Clda_stab * caoa - Cnda_stab * saoa;
+	double Cldr_body = Cldr_stab * caoa - Cndr_stab * saoa;
+
 	//set roll moment -- 
 	//Neu eingefügt am 14.02.2021 PJ-- "-" vor Clr eingefügt, da Clr Daten positiv waren und negativ sein müssten da Dämpfung
 	//m_moment.x-- "2 *" vor Clda eingefügt für stärkere Ailerons = schon besser-- "2*" vor Clp eingefügt -- "0,5 *" vor Clb eingefügt
