@@ -170,7 +170,7 @@ void FlightModel::calculateAero()
 	*/
 
 	//-------------------------NEUE Versíon MIT Beschränkung des Max-Ausschalgs--------------------------------------------------------
-	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * (((m_input.getRoll() * CON_aitgu) + m_input.getTrimmAilR() - m_input.getTrimmAilL()) * m_ailDamage) + (m_lWingDamageCD + m_rWingDamageCD) + (0.55 * Cldr(m_state.m_mach)) * (m_input.getYaw() * CON_RdDefGDR))
+	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * (((m_input.getRoll() * CON_aitgu) + m_input.getTrimmAilR() - m_input.getTrimmAilL()) * m_ailDamage) + (m_lWingDamageCD + m_rWingDamageCD) + (0.55 * Cldr(m_state.m_mach)) * (-m_input.getYaw() * CON_RdDefGDR))
 		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2.0 * Clp(m_state.m_mach) * m_state.m_omega.x + (1.5 * -Clr(m_state.m_mach)) * m_state.m_omega.y);
 
 	//set pitch moment-- 
@@ -220,7 +220,7 @@ void FlightModel::calculateAero()
 
 	//set side force
 	//m_force.z
-	m_force.z += m_k * ((Cydr(m_state.m_mach) * m_input.getYaw() * CON_RdDefGDR) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
+	m_force.z += m_k * ((Cydr(m_state.m_mach) * -m_input.getYaw() * CON_RdDefGDR) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
 
 	// Convert forces from stability to body frame
 	m_force.x += -drag * cos(m_state.m_aoa) + lift * sin(m_state.m_aoa);
