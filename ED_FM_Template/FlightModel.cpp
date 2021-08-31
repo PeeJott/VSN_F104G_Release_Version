@@ -208,7 +208,7 @@ void FlightModel::calculateAero()
 	//approx m_force.y
 	// erster Versuch : m_force.y = m_k * (CLmach(m_state.m_mach) + CLa(m_state.m_aoa)); //Lift ist so schon gut ;-)
 	
-	m_force.y += m_k * (((CLa(m_state.m_mach) * m_state.m_aoa) + ((CLFlaps + CLblc) * m_flapDamage)) * ((m_lWingDamageCL + m_rWingDamageCL) / 2.0 ) ); //+ CLds(m_state.m_mach)); //aktuell nur Lift due to AoA ohne Stab-Lift 
+	double lift = m_k * (((CLa(m_state.m_mach) * m_state.m_aoa) + ((CLFlaps + CLblc) * m_flapDamage)) * ((m_lWingDamageCL + m_rWingDamageCL) / 2.0)); //+ CLds(m_state.m_mach)); //aktuell nur Lift due to AoA ohne Stab-Lift 
 
 	//set drag
 	//--eingefügt 16.02. es fehlt noch supersonic drag, gear-drag, flap-drag, brake-drag
@@ -216,11 +216,15 @@ void FlightModel::calculateAero()
 	//erster Versuch: m_force.x = -(m_k * (CDmach(m_state.m_mach) + CDa(m_state.m_aoa)
 		//+ ((CLmach(m_state.m_mach) + CLa(m_state.m_mach)) * (CLmach(m_state.m_mach) + CLa(m_state.m_mach))) / CON_pi * CON_AR * CON_e));
 	// statt 0.85 jetzt 0.80 * CDa(etc) um Alpha-Drag anzupassen.
-	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (0.80 * (CDa(m_state.m_mach) * m_state.m_aoa)) + (CDeng(m_state.m_mach)) + CDGear + CDFlaps + CDBrk + CDBrkCht); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
+	double drag = m_k * ((CDmin(m_state.m_mach)) + (0.80 * (CDa(m_state.m_mach) * m_state.m_aoa)) + (CDeng(m_state.m_mach)) + CDGear + CDFlaps + CDBrk + CDBrkCht); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
 
 	//set side force
 	//m_force.z
 	m_force.z += m_k * ((Cydr(m_state.m_mach) * m_input.getYaw()) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
+
+	// Convert forces from stability to body frame
+	m_force.x += -drag * cos(m_state.m_aoa) + lift * sin(m_state.m_aoa);
+	m_force.y += lift * cos(m_state.m_aoa) + drag * sin(m_state.m_aoa);
 }
 
 void FlightModel::thrustForce()
