@@ -159,6 +159,11 @@ void FlightModel::airborneInit()
 
 void FlightModel::calculateAero()
 {
+	double caoa = cos(m_state.m_aoa);
+	double saoa = sin(m_state.m_aoa);
+	double caoa2 = caoa * caoa;
+	double saoa2 = saoa * saoa;
+
 	//set roll moment -- 
 	//Neu eingefügt am 14.02.2021 PJ-- "-" vor Clr eingefügt, da Clr Daten positiv waren und negativ sein müssten da Dämpfung
 	//m_moment.x-- "2 *" vor Clda eingefügt für stärkere Ailerons = schon besser-- "2*" vor Clp eingefügt -- "0,5 *" vor Clb eingefügt
@@ -223,8 +228,8 @@ void FlightModel::calculateAero()
 	m_force.z += m_k * ((Cydr(m_state.m_mach) * -m_input.getYaw() * CON_RdDefGDR) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
 
 	// Convert forces from stability to body frame
-	m_force.x += -drag * cos(m_state.m_aoa) + lift * sin(m_state.m_aoa);
-	m_force.y += lift * cos(m_state.m_aoa) + drag * sin(m_state.m_aoa);
+	m_force.x += -drag * caoa + lift * saoa;
+	m_force.y += lift * caoa + drag * saoa;
 }
 
 void FlightModel::thrustForce()
