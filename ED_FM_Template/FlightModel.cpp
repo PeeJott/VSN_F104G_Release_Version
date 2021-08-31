@@ -220,7 +220,7 @@ void FlightModel::calculateAero()
 
 	//set side force
 	//m_force.z
-	m_force.z += m_k * ((Cydr(m_state.m_mach) * m_input.getYaw()) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
+	m_force.z += m_k * ((Cydr(m_state.m_mach) * m_input.getYaw() * CON_RdDefGDR) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
 
 	// Convert forces from stability to body frame
 	m_force.x += -drag * cos(m_state.m_aoa) + lift * sin(m_state.m_aoa);
