@@ -412,7 +412,7 @@ void FlightModel::update(double dt)
 	addedDrag();
 	brokenFlapDrag();
 
-	printf("CD broken Flap %f \n", CD_brFlap);
+	//printf("CD broken Flap %f \n", CD_brFlap);
 	//printf("CL Total %f \n", m_force.y);
 	//----------------function for Pitchup-Factor, Pitchup-force and pitchup-speed--------------------
 	if ((m_state.m_aoa >= 0.2617) && (m_airframe.getFlapsPosition() == 0.0) && (m_state.m_mach > 0.26))
@@ -437,7 +437,7 @@ void FlightModel::update(double dt)
 	}
 	else if ((m_state.m_aoa >= 0.2533) && (m_airframe.getFlapsPosition() > 0.0)) // || (m_state.m_mach <= 0.26)))
 	{
-		m_stallMult = 0.85 * (StAoA(m_state.m_aoa) * StAoAMulti(m_state.m_mach)); //von 1.25 auf 1.75 auf 1.45 zu 1.15 zu 0.95 zu 0.65//neuer Multiplikator
+		m_stallMult = 1.15 * (StAoA(m_state.m_aoa) * StAoAMulti(m_state.m_mach)); //0.85 zu 1.35 zu 1.15
 	}
 	else
 	{

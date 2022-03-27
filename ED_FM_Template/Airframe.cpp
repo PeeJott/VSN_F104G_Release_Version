@@ -652,9 +652,9 @@ void Airframe::airframeUpdate(double dt)
 	//printf("Flp-Up-Value %f \n", m_input.m_flapsup);
 	//printf("YAW_Value %f \n", m_input.m_flapstgl);
 	//printf("Flp-Tgl-Value %f \n", m_input.m_flapstgl);
-	printf("PylonIndicatorValueG %f \n", m_pylonIndLightG);
-	printf("PylonIndicatorValueA %f \n", m_pylonIndLightA);
-	printf("GunSwitchValue %f \n", m_gunSwitch);
+	//printf("PylonIndicatorValueG %f \n", m_pylonIndLightG);
+	//printf("PylonIndicatorValueA %f \n", m_pylonIndLightA);
+	//printf("GunSwitchValue %f \n", m_gunSwitch);
 	
 	//---------Engine flame-out function------------------
 

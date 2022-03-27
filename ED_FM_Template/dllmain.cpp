@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include <stdio.h>
 
-//#define CONSOLE_ENABLED
+#define CONSOLE_ENABLED
 
 FILE* stream;
 
